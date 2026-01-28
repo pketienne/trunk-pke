@@ -1,0 +1,86 @@
+version: 0.1
+
+# Required Trunk CLI version
+required_trunk_version: ">=1.22.8"
+
+lint:
+  # Custom file types
+  files:
+    - name: turtle
+      extensions:
+        - ttl
+      comments:
+        - hash
+
+  # Default linters enabled for all projects that use this plugin
+  enabled:
+    - biome@2.3.11
+    - git-diff-check
+    - markdownlint@0.45.0
+    - shellcheck@0.11.0
+    - shfmt@3.6.0
+
+  # Linter configuration overrides
+  definitions:
+    - name: taplo
+      direct_configs:
+        - .trunk/configs/.taplo.toml
+        - .taplo.toml
+        - taplo.toml
+
+    - name: rustfmt
+      direct_configs:
+        - .trunk/configs/rustfmt.toml
+        - rustfmt.toml
+
+    # RDF Turtle formatter
+    # Requires: prttl installed globally via: cargo install prttl
+    # Note: prttl removes comments by design - use RDF triples for documentation
+    - name: prttl
+      files: [turtle]
+      description: Auto formatter for RDF/Turtle files, optimized for diff minimization
+      commands:
+        - name: format
+          formatter: true
+          run: prttl --pred-order-preset rdf ${target}
+          output: rewrite
+          success_codes: [0]
+          in_place: true
+        - name: lint
+          run: prttl --pred-order-preset rdf --check ${target}
+          output: pass_fail
+          success_codes: [0, 1]
+      environment:
+        - name: PATH
+          list: ["${home}/.cargo/bin", "${env.PATH}"]
+      suggest_if: files_present
+      known_good_version: 0.4.0
+
+  # Global ignore patterns
+  ignore:
+    - linters: [ALL]
+      paths:
+        - node_modules/**
+        - .git/**
+        - "**/.git/**"
+        - "**/node_modules/**"
+        - vendor/**
+        - dist/**
+        - build/**
+        - .trunk/**
+
+  # Export config files to consuming repositories
+  # These become available in .trunk/configs/ automatically
+  exported_configs:
+    - configs:
+        - configs/.markdownlint.json
+        - configs/.editorconfig
+        - configs/biome.json
+        - configs/.taplo.toml
+        - configs/rustfmt.toml
+        - configs/deny.toml
+
+actions:
+  enabled:
+    - trunk-check-pre-commit
+    - trunk-fmt-pre-commit
