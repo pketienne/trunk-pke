@@ -45,8 +45,37 @@ actions:
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
 
+tools:
+  definitions:
+    - name: dprint
+      runtime: node
+      package: dprint
+      shims: [dprint]
+      known_good_version: 0.51.1
+
+  enabled:
+    - dprint@0.51.1
+
 lint:
   definitions:
+    - name: dprint
+      tools: [dprint]
+      files: [markdown, json, typescript, javascript]
+      commands:
+        - name: format
+          run: dprint fmt ${target}
+          output: rewrite
+          success_codes: [0]
+          formatter: true
+          in_place: true
+      direct_configs:
+        - .trunk/configs/dprint.json
+        - dprint.json
+      affects_cache:
+        - dprint.json
+        - .trunk/configs/dprint.json
+      suggest_if: config_present
+
     - name: rustfmt
       direct_configs:
         - .trunk/configs/rustfmt.toml
@@ -81,6 +110,7 @@ lint:
     - black@26.1.0
     - checkov@3.2.499
     - clippy@1.93.0
+    - dprint@0.51.1
     - git-diff-check
     - isort@7.0.0
     - markdownlint@0.47.0
@@ -101,6 +131,7 @@ lint:
         - configs/.taplo.toml
         - configs/biome.json
         - configs/deny.toml
+        - configs/dprint.json
         - configs/rustfmt.toml
 
   files:
