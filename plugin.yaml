@@ -1,84 +1,134 @@
 version: 0.1
-
-# Required Trunk CLI version
 required_trunk_version: ">=1.22.8"
 
-lint:
-  # Custom file types
-  files:
-    - name: turtle
-      extensions:
-        - ttl
-      comments:
-        - hash
-
-  # Default linters enabled for all projects that use this plugin
-  enabled:
-    - biome@2.3.11
-    - git-diff-check
-    - markdownlint@0.45.0
-    - shellcheck@0.11.0
-    - shfmt@3.6.0
-
-  # Linter configuration overrides
+actions:
   definitions:
+    - id: boops-export-pre-commit
+      display_name: Export Boops Store
+      run: "[ -f Cargo.toml ] && cargo run --quiet -- export || true"
+      triggers:
+        - git_hooks: [pre-commit]
+
+    - id: cargo-audit-pre-push
+      display_name: Security Audit
+      run: "[ -f Cargo.toml ] && mise exec -- cargo audit || true"
+      triggers:
+        - git_hooks: [pre-push]
+
+    - id: cargo-deny-pre-push
+      display_name: Dependency Check
+      run: "[ -f Cargo.toml ] && mise exec -- cargo deny check --config .trunk/configs/deny.toml || true"
+      triggers:
+        - git_hooks: [pre-push]
+
+    - id: cargo-test-pre-commit
+      display_name: Cargo Tests
+      run: "[ -f Cargo.toml ] && cargo test || true"
+      triggers:
+        - git_hooks: [pre-commit]
+
+    - id: pnpm-test-pre-commit
+      display_name: Pnpm Tests
+      run: "[ -f package.json ] && mise exec -- pnpm test || true"
+      triggers:
+        - git_hooks: [pre-commit]
+
+  enabled:
+    - boops-export-pre-commit
+    - cargo-audit-pre-push
+    - cargo-deny-pre-push
+    - cargo-test-pre-commit
+    - pnpm-test-pre-commit
+    - trunk-announce
+    - trunk-check-pre-commit
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+    - trunk-upgrade-available
+
+lint:
+  definitions:
+    - name: rustfmt
+      direct_configs:
+        - .trunk/configs/rustfmt.toml
+        - rustfmt.toml
+
+    - name: serdi
+      description: RDF syntax validator and canonical formatter from the Serd library
+      files: [turtle]
+      known_good_version: 0.32.6
+      suggest_if: files_present
+      commands:
+        - name: format
+          formatter: true
+          output: rewrite
+          run: serdi -o turtle ${target}
+          success_codes: [0]
+        - name: lint
+          output: pass_fail
+          read_output_from: stderr
+          run: serdi -o turtle ${target}
+          success_codes: [0, 1]
+
     - name: taplo
       direct_configs:
         - .trunk/configs/.taplo.toml
         - .taplo.toml
         - taplo.toml
 
-    - name: rustfmt
-      direct_configs:
-        - .trunk/configs/rustfmt.toml
-        - rustfmt.toml
+  enabled:
+    - bandit@1.9.3
+    - biome@2.3.11
+    - black@26.1.0
+    - checkov@3.2.499
+    - clippy@1.93.0
+    - git-diff-check
+    - isort@7.0.0
+    - markdownlint@0.47.0
+    - osv-scanner@2.3.2
+    - ruff@0.14.14
+    - rustfmt@1.93.0
+    - serdi
+    - shellcheck@0.11.0
+    - shfmt@3.6.0
+    - taplo@0.10.0
+    - trufflehog@3.92.5
+    - yamllint@1.38.0
 
-    # RDF Turtle linter/formatter
-    # Requires: serdi installed via: sudo apt install serdi
-    # Note: serdi produces canonical output (normalized, not pretty-printed)
-    # Note: serdi removes comments by design - use RDF triples for documentation
-    - name: serdi
-      files: [turtle]
-      description: RDF syntax validator and canonical formatter from the Serd library
-      commands:
-        - name: format
-          formatter: true
-          run: serdi -o turtle ${target}
-          output: rewrite
-          success_codes: [0]
-        - name: lint
-          run: serdi -o turtle ${target}
-          output: pass_fail
-          success_codes: [0, 1]
-          read_output_from: stderr
-      suggest_if: files_present
-      known_good_version: 0.32.6
+  exported_configs:
+    - configs:
+        - configs/.editorconfig
+        - configs/.markdownlint.json
+        - configs/.taplo.toml
+        - configs/biome.json
+        - configs/deny.toml
+        - configs/rustfmt.toml
 
-  # Global ignore patterns
+  files:
+    - name: turtle
+      comments:
+        - hash
+      extensions:
+        - ttl
+
   ignore:
     - linters: [ALL]
       paths:
-        - node_modules/**
-        - .git/**
         - "**/.git/**"
         - "**/node_modules/**"
-        - vendor/**
-        - dist/**
-        - build/**
+        - .git/**
+        - .next/**
+        - .open-next/**
+        - .sst/**
         - .trunk/**
+        - .turbo/**
+        - build/**
+        - dist/**
+        - node_modules/**
+        - target/**
+        - vendor/**
 
-  # Export config files to consuming repositories
-  # These become available in .trunk/configs/ automatically
-  exported_configs:
-    - configs:
-        - configs/.markdownlint.json
-        - configs/.editorconfig
-        - configs/biome.json
-        - configs/.taplo.toml
-        - configs/rustfmt.toml
-        - configs/deny.toml
-
-actions:
+runtimes:
   enabled:
-    - trunk-check-pre-commit
-    - trunk-fmt-pre-commit
+    - go@1.21.0
+    - node@22.16.0
+    - python@3.10.8
