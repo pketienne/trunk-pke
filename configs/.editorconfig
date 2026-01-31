@@ -1,8 +1,8 @@
 root = true
 
 [*]
-indent_style = space
-indent_size = 2
+indent_style = tab
+tab_width = 4
 end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
@@ -11,7 +11,9 @@ insert_final_newline = true
 [*.md]
 trim_trailing_whitespace = false
 
+# YAML requires spaces (tabs are invalid syntax)
 [*.{yml,yaml}]
+indent_style = space
 indent_size = 2
 
 [Makefile]
@@ -20,5 +22,11 @@ indent_style = tab
 [*.go]
 indent_style = tab
 
-[*.rb]
-indent_size = 2
+[*.rs]
+indent_style = tab
+
+[*.{js,jsx,ts,tsx,json}]
+indent_style = tab
+
+[*.toml]
+indent_style = tab

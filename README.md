@@ -1,104 +1,63 @@
-# trunk-config
+# trunk-pke
 
 Shared Trunk configuration for projects in ~/Projects.
 
 ## Usage
 
-### Adding to a new project
-
-Initialize Trunk in your project if not already done:
+Initialize Trunk in your project:
 
 ```bash
 trunk init
 ```
 
-Then add this plugin to your `.trunk/trunk.yaml`:
+Add this plugin to `.trunk/trunk.yaml`:
 
 ```yaml
 version: 0.1
 cli:
-  version: 1.22.8
+  version: 1.25.0
 plugins:
   sources:
     - id: trunk
-      ref: v1.6.5
+      ref: v1.7.4
       uri: https://github.com/trunk-io/plugins
-    - id: pke-config
-      local: /home/pke/Projects/trunk-config
+    - id: trunk-pke
+      local: ../trunk-pke
 ```
 
-### For remote usage (after pushing to GitHub)
+## Included
 
-```yaml
-plugins:
-  sources:
-    - id: trunk
-      ref: v1.6.5
-      uri: https://github.com/trunk-io/plugins
-    - id: pke-config
-      ref: v1.0.0
-      uri: https://github.com/USERNAME/trunk-config
-```
-
-## What's Included
-
-### Linters (enabled by default)
+### Linters
 
 | Linter | Version | Purpose |
 |--------|---------|---------|
-| git-diff-check | latest | Checks for conflict markers and whitespace errors |
-| markdownlint | 0.42.0 | Markdown style enforcement |
-| prettier | 3.4.2 | Code formatting (JS, JSON, YAML, MD, etc.) |
-| shellcheck | 0.10.0 | Shell script static analysis |
+| biome | 2.3.11 | JavaScript/TypeScript/JSON linting and formatting |
+| git-diff-check | latest | Conflict markers and whitespace errors |
+| markdownlint | 0.45.0 | Markdown style enforcement |
+| shellcheck | 0.11.0 | Shell script static analysis |
 | shfmt | 3.6.0 | Shell script formatting |
 
 ### Exported Configs
 
-- `.prettierrc` - Prettier configuration
+- `biome.json` - Biome formatter/linter (tabs, single quotes, LF)
 - `.markdownlint.json` - Markdownlint rules
 - `.editorconfig` - Editor settings
 
 ### Pre-commit Actions
 
-- `trunk-check-pre-commit` - Run linters on staged files
-- `trunk-fmt-pre-commit` - Auto-format staged files
+- `trunk-check-pre-commit` - Lint staged files
+- `trunk-fmt-pre-commit` - Format staged files
 
-## Overriding Defaults
+## Overriding
 
-### Project-level overrides
-
-Add settings to your project's `.trunk/trunk.yaml`:
+Add project-specific settings to `.trunk/trunk.yaml`:
 
 ```yaml
 lint:
   enabled:
-    - biome@2.3.11  # Add project-specific linters
+    - yamllint@1.38.0  # Add linters
   disabled:
-    - prettier      # Disable if using biome for formatting
+    - markdownlint     # Disable linters
 ```
 
-### Config file overrides
-
-Place your own config files in `.trunk/configs/` to override the shared ones:
-
-```
-.trunk/
-  configs/
-    .prettierrc  # This overrides the shared .prettierrc
-```
-
-## Updating
-
-When changes are made to this repository:
-
-1. If using local reference: Changes apply immediately
-2. If using remote reference: Update the `ref` version tag and run `trunk upgrade`
-
-## Creating a Release (for remote usage)
-
-```bash
-git add .
-git commit -m "Update configuration"
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin main --tags
-```
+Changes to this plugin apply immediately to all projects using the local reference.

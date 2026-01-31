@@ -1,0 +1,10 @@
+# Use tabs for indentation
+hard_tabs = true
+tab_spaces = 4
+
+# Line width
+max_width = 100
+
+# Imports
+imports_granularity = "Module"
+group_imports = "StdExternalCrate"

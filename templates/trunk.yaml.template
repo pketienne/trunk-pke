@@ -10,7 +10,7 @@ plugins:
       ref: v1.6.5
       uri: https://github.com/trunk-io/plugins
     - id: pke-config
-      local: /home/pke/Projects/trunk-config
+      local: /home/pke/Projects/trunk
 
 # Uncomment to add project-specific linters or overrides:
 # lint:

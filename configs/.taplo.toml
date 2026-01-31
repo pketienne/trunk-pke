@@ -1,0 +1,45 @@
+[formatting]
+# Align consecutive entries vertically
+align_entries = false
+# Align comments at the end of lines
+align_comments = true
+# Add trailing comma to arrays
+array_trailing_comma = true
+# Use tabs for indentation
+indent_string = "\t"
+# Automatically expand arrays that exceed column width
+array_auto_expand = true
+# Automatically collapse arrays that fit within column width
+array_auto_collapse = true
+# Reorder keys alphabetically (disabled globally, enabled for specific sections below)
+reorder_keys = false
+
+# Sort Cargo.toml sections that benefit from alphabetical ordering
+[[rule]]
+include = ["**/Cargo.toml"]
+keys = [
+    # Dependencies
+    "dependencies",
+    "dev-dependencies",
+    "build-dependencies",
+    "workspace.dependencies",
+    # Features
+    "features",
+    # Patches
+    "patch.*",
+    # Lints
+    "lints.rust",
+    "lints.clippy",
+    # Workspace
+    "workspace.members",
+    "workspace.exclude",
+]
+
+[rule.formatting]
+reorder_keys = true
+
+# Sections with semantic ordering (not sorted):
+# - package (name/version first)
+# - lib, bin, example, test, bench (structured)
+# - profile.* (opt-level, debug, etc. have conventional order)
+# - target.* (structured)
