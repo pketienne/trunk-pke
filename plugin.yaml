@@ -33,28 +33,26 @@ lint:
         - .trunk/configs/rustfmt.toml
         - rustfmt.toml
 
-    # RDF Turtle formatter
-    # Requires: prttl installed globally via: cargo install prttl
-    # Note: prttl removes comments by design - use RDF triples for documentation
-    - name: prttl
+    # RDF Turtle linter/formatter
+    # Requires: serdi installed via: sudo apt install serdi
+    # Note: serdi produces canonical output (normalized, not pretty-printed)
+    # Note: serdi removes comments by design - use RDF triples for documentation
+    - name: serdi
       files: [turtle]
-      description: Auto formatter for RDF/Turtle files, optimized for diff minimization
+      description: RDF syntax validator and canonical formatter from the Serd library
       commands:
         - name: format
           formatter: true
-          run: prttl --pred-order-preset rdf ${target}
+          run: serdi -o turtle ${target}
           output: rewrite
           success_codes: [0]
-          in_place: true
         - name: lint
-          run: prttl --pred-order-preset rdf --check ${target}
+          run: serdi -o turtle ${target}
           output: pass_fail
           success_codes: [0, 1]
-      environment:
-        - name: PATH
-          list: ["${home}/.cargo/bin", "${env.PATH}"]
+          read_output_from: stderr
       suggest_if: files_present
-      known_good_version: 0.4.0
+      known_good_version: 0.32.6
 
   # Global ignore patterns
   ignore:
