@@ -61,3 +61,15 @@ lint:
 ```
 
 Changes to this plugin apply immediately to all projects using the local reference.
+
+## Configuration Notes
+
+### markdownlint
+
+**MD060 disabled**: dprint cannot handle multi-byte (Unicode) characters correctly when formatting tables with column alignment.
+
+**Note**: Prettier cannot address most markdownlint rules - they are complementary tools, not interchangeable.
+
+### dprint
+
+Uses a custom fork ([pketienne/dprint-plugin-markdown](https://github.com/pketienne/dprint-plugin-markdown)) that adds `autoLinkBareUrls` for MD034 (bare URL) support.
