@@ -57,6 +57,13 @@ actions:
       triggers:
         - git_hooks: [pre-push]
 
+    - id: yard-validate-pre-commit
+      display_name: YARD Documentation Validation
+      description: Validates YARD documentation before commit
+      run: "[ -f Gemfile ] && mise run yard:validate || true"
+      triggers:
+        - git_hooks: [pre-commit]
+
   enabled:
     - boops-export-pre-commit
     - cargo-audit-pre-push
@@ -72,6 +79,7 @@ actions:
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
+    - yard-validate-pre-commit
 
 lint:
   definitions:
