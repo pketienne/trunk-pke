@@ -10,13 +10,13 @@ actions:
         - git_hooks: [pre-commit]
 
     - id: cargo-audit-pre-push
-      display_name: Security Audit
+      display_name: Cargo Security Audit
       run: "[ -f Cargo.toml ] && mise exec -- cargo audit || true"
       triggers:
         - git_hooks: [pre-push]
 
     - id: cargo-deny-pre-push
-      display_name: Dependency Check
+      display_name: Cargo Dependency Check
       run: "[ -f Cargo.toml ] && mise exec -- cargo deny check --config .trunk/configs/deny.toml || true"
       triggers:
         - git_hooks: [pre-push]
@@ -28,17 +28,45 @@ actions:
         - git_hooks: [pre-commit]
 
     - id: pnpm-test-pre-commit
-      display_name: Pnpm Tests
+      display_name: Pnpm Tests (Pre-commit)
       run: "[ -f package.json ] && mise exec -- pnpm test || true"
       triggers:
         - git_hooks: [pre-commit]
+
+    - id: pnpm-test-pre-push
+      display_name: Pnpm Tests (Pre-push)
+      run: "[ -f package.json ] && mise exec -- pnpm test || true"
+      triggers:
+        - git_hooks: [pre-push]
+
+    - id: pnpm-typecheck-pre-commit
+      display_name: Pnpm Typecheck (Pre-commit)
+      run: "[ -f package.json ] && mise exec -- pnpm typecheck || true"
+      triggers:
+        - git_hooks: [pre-commit]
+
+    - id: pnpm-typecheck-pre-push
+      display_name: Pnpm Typecheck (Pre-push)
+      run: "[ -f package.json ] && mise exec -- pnpm typecheck || true"
+      triggers:
+        - git_hooks: [pre-push]
+
+    - id: pnpm-audit-pre-push
+      display_name: Pnpm Security Audit
+      run: "[ -f package.json ] && mise exec -- pnpm audit --audit-level=high || true"
+      triggers:
+        - git_hooks: [pre-push]
 
   enabled:
     - boops-export-pre-commit
     - cargo-audit-pre-push
     - cargo-deny-pre-push
     - cargo-test-pre-commit
+    - pnpm-audit-pre-push
     - pnpm-test-pre-commit
+    - pnpm-test-pre-push
+    - pnpm-typecheck-pre-commit
+    - pnpm-typecheck-pre-push
     - trunk-announce
     - trunk-check-pre-commit
     - trunk-check-pre-push
@@ -47,9 +75,21 @@ actions:
 
 lint:
   definitions:
+    - name: biome
+      files:
+        - javascript
+        - typescript
+        - json
+        - jsonc
+        - css
+        - graphql
+        - astro
+        - svelte
+        - vue
+
     - name: dprint
       tools: [dprint]
-      files: [markdown, json, typescript, javascript]
+      files: [markdown]
       commands:
         - name: format
           run: dprint fmt ${target}
@@ -71,7 +111,7 @@ lint:
         - rustfmt.toml
 
     - name: serdi
-      description: RDF syntax validator and canonical formatter from the Serd library
+      description: RDF syntax validator and canonical formatter
       files: [turtle]
       known_good_version: 0.32.6
       suggest_if: files_present
@@ -87,7 +127,7 @@ lint:
           run: serdi -o turtle ${target}
           success_codes: [0, 1]
 
-    - name: markdownlint 
+    - name: markdownlint
       direct_configs:
         - .trunk/configs/.markdownlint.json
         - .markdownlint.json
@@ -137,6 +177,15 @@ lint:
         - hash
       extensions:
         - ttl
+    - name: vue
+      comments:
+        - html-tag
+        - slashes-block
+      extensions:
+        - vue
+    - name: jsonc
+      extensions:
+        - jsonc
 
   ignore:
     - linters: [ALL]

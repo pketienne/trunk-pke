@@ -6,25 +6,23 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": true,
-		"includes": [
-			"**",
-			"!node_modules",
-			"!.next",
-			"!.sst",
-			"!.open-next",
-			"!.turbo",
-			"!dist",
-			"!build",
-			"!target",
-			"!vendor"
+		"ignoreUnknown": false,
+		"ignore": [
+			"*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.ico", "*.webp",
+			"*.woff", "*.woff2", "*.ttf", "*.eot", "*.otf",
+			"*.pdf", "*.zip", "*.tar", "*.gz", "*.tgz",
+			"*.lock", "pnpm-lock.yaml", "package-lock.json", "yarn.lock",
+			"*.md",
+			"*.sql", "*.prisma",
+			"*.env", "*.env.*",
+			"*.csv", "*.xml"
 		]
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
 		"lineEnding": "lf",
-		"lineWidth": 100
+		"lineWidth": 80
 	},
 	"json": {
 		"formatter": {
@@ -51,6 +49,13 @@
 			"recommended": true,
 			"suspicious": {
 				"noUnknownAtRules": "off"
+			},
+			"complexity": {
+				"noExcessiveCognitiveComplexity": {
+					"level": "warn",
+					"options": { "maxAllowedComplexity": 15 }
+				},
+				"noExcessiveNestedTestSuites": "warn"
 			}
 		},
 		"domains": {
