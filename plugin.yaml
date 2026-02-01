@@ -45,17 +45,6 @@ actions:
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
 
-tools:
-  definitions:
-    - name: dprint
-      runtime: node
-      package: dprint
-      shims: [dprint]
-      known_good_version: 0.51.1
-
-  enabled:
-    - dprint@0.51.1
-
 lint:
   definitions:
     - name: dprint
@@ -103,6 +92,9 @@ lint:
         - .trunk/configs/.taplo.toml
         - .taplo.toml
         - taplo.toml
+
+  disabled:
+    - prettier
 
   enabled:
     - bandit@1.9.3
@@ -163,3 +155,14 @@ runtimes:
     - go@1.21.0
     - node@22.16.0
     - python@3.10.8
+
+tools:
+  definitions:
+    - name: dprint
+      runtime: node
+      package: dprint
+      shims: [dprint]
+      known_good_version: 0.51.1
+
+  enabled:
+    - dprint@0.51.1
