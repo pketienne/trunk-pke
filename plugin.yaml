@@ -86,6 +86,28 @@ lint:
         - astro
         - svelte
         - vue
+      description: A static analyzer for web projects
+      commands:
+        - name: lint
+          output: regex
+          parse_regex:
+            ' *(?P<path>.*?):(?P<line>\d+):(?P<col>\d+) (?P<code>[^ ]+)(?:[^×]*\n).*×
+            (?P<message>.*)\n'
+          run: biome check ${target}
+          success_codes: [0, 1]
+          batch: true
+          cache_results: true
+          read_output_from: stdout
+        - name: fmt
+          output: rewrite
+          run: biome check --fix "${target}"
+          success_codes: [0, 1]
+          batch: true
+          cache_results: true
+          formatter: true
+          in_place: true
+      tools: [biome]
+      suggest_if: config_present
       direct_configs:
         - .trunk/configs/biome.json
         - biome.json
@@ -94,6 +116,12 @@ lint:
         - biome.json
         - biome.jsonc
         - .trunk/configs/biome.json
+        - package.json
+        - .editorconfig
+      known_good_version: 2.3.11
+      version_command:
+        parse_regex: biome CLI version ${semver}
+        run: biome --version
 
     - name: dprint
       tools: [dprint]
