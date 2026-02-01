@@ -66,6 +66,8 @@ Changes to this plugin apply immediately to all projects using the local referen
 
 ### markdownlint
 
+**MD010 (hard tabs)**: Configured to ignore tabs inside code blocks. Shell script examples formatted by shfmt use tabs, which would otherwise trigger MD010 errors in markdown files.
+
 **MD060 disabled**: dprint cannot handle multi-byte (Unicode) characters correctly when formatting tables with column alignment.
 
 **Note**: Prettier cannot address most markdownlint rules - they are complementary tools, not interchangeable.
