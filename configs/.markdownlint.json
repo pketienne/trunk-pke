@@ -1,5 +1,9 @@
 {
   "default": true,
+  "MD010": {
+    "code_blocks": false,
+    "spaces_per_tab": 1
+  },
   "MD060": false,
   "MD013": {
     "line_length": 120,
