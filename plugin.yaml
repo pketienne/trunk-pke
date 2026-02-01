@@ -93,14 +93,14 @@ lint:
           parse_regex:
             ' *(?P<path>.*?):(?P<line>\d+):(?P<col>\d+) (?P<code>[^ ]+)(?:[^×]*\n).*×
             (?P<message>.*)\n'
-          run: biome check ${target}
+          run: biome check --config-path "${workspace}" ${target}
           success_codes: [0, 1]
           batch: true
           cache_results: true
-          read_output_from: stdout
+          read_output_from: stderr
         - name: fmt
           output: rewrite
-          run: biome check --fix "${target}"
+          run: biome check --config-path "${workspace}" --fix "${target}"
           success_codes: [0, 1]
           batch: true
           cache_results: true
