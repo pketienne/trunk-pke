@@ -86,6 +86,14 @@ lint:
         - astro
         - svelte
         - vue
+      direct_configs:
+        - .trunk/configs/biome.json
+        - biome.json
+        - biome.jsonc
+      affects_cache:
+        - biome.json
+        - biome.jsonc
+        - .trunk/configs/biome.json
 
     - name: dprint
       tools: [dprint]
