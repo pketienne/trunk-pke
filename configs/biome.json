@@ -7,15 +7,16 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": [
-			"*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.ico", "*.webp",
-			"*.woff", "*.woff2", "*.ttf", "*.eot", "*.otf",
-			"*.pdf", "*.zip", "*.tar", "*.gz", "*.tgz",
-			"*.lock", "pnpm-lock.yaml", "package-lock.json", "yarn.lock",
-			"*.md",
-			"*.sql", "*.prisma",
-			"*.env", "*.env.*",
-			"*.csv", "*.xml"
+		"includes": [
+			"**",
+			"!*.png", "!*.jpg", "!*.jpeg", "!*.gif", "!*.svg", "!*.ico", "!*.webp",
+			"!*.woff", "!*.woff2", "!*.ttf", "!*.eot", "!*.otf",
+			"!*.pdf", "!*.zip", "!*.tar", "!*.gz", "!*.tgz",
+			"!*.lock", "!pnpm-lock.yaml", "!package-lock.json", "!yarn.lock",
+			"!*.md",
+			"!*.sql", "!*.prisma",
+			"!*.env", "!*.env.*",
+			"!*.csv", "!*.xml"
 		]
 	},
 	"formatter": {
