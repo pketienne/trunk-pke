@@ -83,6 +83,8 @@ actions:
 
 lint:
   definitions:
+    # Extend biome with additional file types (jsonc, svelte, vue)
+    # trunk-io/plugins only includes: astro, css, graphql, javascript, json, typescript
     - name: biome
       files:
         - javascript
@@ -94,43 +96,8 @@ lint:
         - astro
         - svelte
         - vue
-      description: A static analyzer for web projects
-      commands:
-        - name: lint
-          output: regex
-          parse_regex:
-            ' *(?P<path>.*?):(?P<line>\d+):(?P<col>\d+) (?P<code>[^ ]+)(?:[^×]*\n).*×
-            (?P<message>.*)\n'
-          run: biome check ${target}
-          success_codes: [0, 1]
-          batch: true
-          cache_results: true
-          read_output_from: stderr
-        - name: fmt
-          output: rewrite
-          run: biome check --fix "${target}"
-          success_codes: [0, 1]
-          batch: true
-          cache_results: true
-          formatter: true
-          in_place: true
-      tools: [biome]
-      suggest_if: config_present
-      direct_configs:
-        - .trunk/configs/biome.json
-        - biome.json
-        - biome.jsonc
-      affects_cache:
-        - biome.json
-        - biome.jsonc
-        - .trunk/configs/biome.json
-        - package.json
-        - .editorconfig
-      known_good_version: 2.3.11
-      version_command:
-        parse_regex: biome CLI version ${semver}
-        run: biome --version
 
+    # dprint is not in trunk-io/plugins - full definition required
     - name: dprint
       tools: [dprint]
       files: [markdown]
@@ -149,11 +116,7 @@ lint:
         - .trunk/configs/dprint.json
       suggest_if: config_present
 
-    - name: rustfmt
-      direct_configs:
-        - .trunk/configs/rustfmt.toml
-        - rustfmt.toml
-
+    # serdi is not in trunk-io/plugins - full definition required
     - name: serdi
       description: RDF syntax validator and canonical formatter
       files: [turtle]
@@ -170,17 +133,6 @@ lint:
           read_output_from: stderr
           run: serdi -o turtle ${target}
           success_codes: [0, 1]
-
-    - name: markdownlint
-      direct_configs:
-        - .trunk/configs/.markdownlint.json
-        - .markdownlint.json
-
-    - name: taplo
-      direct_configs:
-        - .trunk/configs/.taplo.toml
-        - .taplo.toml
-        - taplo.toml
 
   disabled:
     - prettier
