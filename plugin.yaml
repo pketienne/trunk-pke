@@ -87,6 +87,11 @@ lint:
           run: serdi -o turtle ${target}
           success_codes: [0, 1]
 
+    - name: markdownlint 
+      direct_configs:
+        - .trunk/configs/.markdownlint.json
+        - .markdownlint.json
+
     - name: taplo
       direct_configs:
         - .trunk/configs/.taplo.toml
