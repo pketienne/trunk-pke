@@ -1,4 +1,4 @@
-version: 0.1
+version: 1.4.0
 required_trunk_version: ">=1.22.8"
 
 actions:
