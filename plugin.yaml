@@ -64,6 +64,13 @@ actions:
       triggers:
         - git_hooks: [pre-commit]
 
+    - id: inspec-pre-push
+      display_name: InSpec Compliance Tests
+      description: Runs Chef/Cinc InSpec compliance profiles before push
+      run: "[ -d cookbooks ] && inspec exec cookbooks/*/compliance/profiles/default --reporter cli || true"
+      triggers:
+        - git_hooks: [pre-push]
+
   enabled:
     - boops-export-pre-commit
     - cargo-audit-pre-push
@@ -80,6 +87,7 @@ actions:
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
     - yard-validate-pre-commit
+    - inspec-pre-push
 
 lint:
   definitions:
@@ -156,6 +164,7 @@ lint:
     - taplo@0.10.0
     - trufflehog@3.92.5
     - yamllint@1.38.0
+    - rubocop@1.75.2
 
   exported_configs:
     - configs:
@@ -166,6 +175,7 @@ lint:
         - configs/deny.toml
         - configs/dprint.json
         - configs/rustfmt.toml
+        - configs/.rubocop.yml
 
   files:
     - name: turtle
@@ -182,6 +192,12 @@ lint:
     - name: jsonc
       extensions:
         - jsonc
+    - name: erb
+      comments:
+        - html-tag
+      extensions:
+        - erb
+        - rhtml
 
   ignore:
     - linters: [ALL]
@@ -205,6 +221,7 @@ runtimes:
     - go@1.21.0
     - node@22.16.0
     - python@3.10.8
+    - ruby@3.3.7
 
 tools:
   definitions:

@@ -30,3 +30,13 @@ indent_style = tab
 
 [*.toml]
 indent_style = tab
+
+# Ruby uses 2-space indentation by convention
+[*.rb]
+indent_style = space
+indent_size = 2
+
+# ERB templates (Chef, Rails)
+[*.erb]
+indent_style = space
+indent_size = 2
