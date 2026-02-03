@@ -22,7 +22,7 @@ plugins:
       ref: v1.7.4
       uri: https://github.com/trunk-io/plugins
     - id: trunk-pke
-      local: ../trunk-pke
+      uri: https://github.com/pketienne/trunk-pke
 ```
 
 ## Included
