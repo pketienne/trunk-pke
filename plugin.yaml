@@ -250,6 +250,15 @@ lint:
         - node_modules/**
         - target/**
         - vendor/**
+    # Rubocop doesn't understand InSpec DSL - use cookstyle for compliance files
+    - linters: [rubocop]
+      paths:
+        - cookbooks/*/compliance/**
+        - scripts/**
+    # Cookstyle is specifically for Chef/InSpec - don't run on other Ruby files
+    - linters: [cookstyle]
+      paths:
+        - scripts/**
 
 runtimes:
   enabled:
