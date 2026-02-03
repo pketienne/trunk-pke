@@ -157,8 +157,6 @@ lint:
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
-        - name: MISE_TRUSTED_CONFIG_PATHS
-          value: "/tmp/trunk-1000"
       direct_configs:
         - .trunk/configs/.rubocop.yml
         - .rubocop.yml
