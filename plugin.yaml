@@ -94,12 +94,12 @@ actions:
     - id: inspec-pre-push
       display_name: InSpec Compliance Tests
       description: Runs Chef/Cinc InSpec compliance profiles before push
-      run: inspec exec cookbooks/*/compliance/profiles/default --reporter cli
+      run: inspec exec cookbooks/*/compliance/profiles/default --input-file inspec.yml --reporter cli
       run_from:
         root_or_parent_with: [cookbooks]
       triggers:
         - git_hooks: [pre-push]
-          paths: ["cookbooks/**/compliance/**"]
+          paths: ["cookbooks/**/compliance/**", "inspec.yml"]
 
   enabled:
     - boops-export-pre-commit
@@ -162,6 +162,7 @@ lint:
         - .rubocop.yml
 
     # cookstyle for Chef/InSpec files (uses system cookstyle from Cinc Workstation)
+    # Reuses trunk's rubocop_to_sarif.py since cookstyle outputs identical JSON
     - name: cookstyle
       description: Chef/InSpec style linter (RuboCop-based)
       files: [ruby]
@@ -177,7 +178,7 @@ lint:
           batch: true
           parser:
             runtime: python
-            run: python3 ${plugin}/configs/cookstyle_to_sarif.py
+            run: python3 ${workspace}/.trunk/plugins/trunk/linters/rubocop/rubocop_to_sarif.py
         - name: fix
           output: rewrite
           run: cookstyle --auto-correct ${target}
@@ -240,7 +241,6 @@ lint:
         - configs/.markdownlint.json
         - configs/.taplo.toml
         - configs/biome.json
-        - configs/cookstyle_to_sarif.py
         - configs/deny.toml
         - configs/dprint.json
         - configs/rustfmt.toml
