@@ -5,89 +5,117 @@ actions:
   definitions:
     - id: boops-export-pre-commit
       display_name: Export Boops Store
-      run: "[ -f Cargo.toml ] && cargo run --quiet -- export || true"
+      run: cargo run --quiet -- export
+      run_from:
+        root_or_parent_with: [Cargo.toml]
       triggers:
         - git_hooks: [pre-commit]
+          paths: ["**/*.rs", "Cargo.toml", "Cargo.lock"]
 
     - id: cargo-audit-pre-push
       display_name: Cargo Security Audit
-      run: "[ -f Cargo.toml ] && mise exec -- cargo audit || true"
+      run: cargo audit
+      run_from:
+        root_or_parent_with: [Cargo.toml]
+      environment:
+        - name: PATH
+          list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
         - git_hooks: [pre-push]
 
     - id: cargo-deny-pre-push
       display_name: Cargo Dependency Check
-      run: "[ -f Cargo.toml ] && mise exec -- cargo deny check --config .trunk/configs/deny.toml || true"
+      run: cargo deny check --config .trunk/configs/deny.toml
+      run_from:
+        root_or_parent_with: [Cargo.toml]
+      environment:
+        - name: PATH
+          list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
         - git_hooks: [pre-push]
 
     - id: cargo-test-pre-commit
       display_name: Cargo Tests
-      run: "[ -f Cargo.toml ] && cargo test || true"
+      run: cargo test
+      run_from:
+        root_or_parent_with: [Cargo.toml]
       triggers:
         - git_hooks: [pre-commit]
+          paths: ["**/*.rs", "Cargo.toml", "Cargo.lock"]
 
-    - id: pnpm-test-pre-commit
-      display_name: Pnpm Tests (Pre-commit)
-      run: "[ -f package.json ] && mise exec -- pnpm test || true"
+    - id: pnpm-test
+      display_name: Pnpm Tests
+      run: pnpm test
+      run_from:
+        root_or_parent_with: [package.json]
+      environment:
+        - name: PATH
+          list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
-        - git_hooks: [pre-commit]
+        - git_hooks: [pre-commit, pre-push]
+          paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "package.json"]
 
-    - id: pnpm-test-pre-push
-      display_name: Pnpm Tests (Pre-push)
-      run: "[ -f package.json ] && mise exec -- pnpm test || true"
+    - id: pnpm-typecheck
+      display_name: Pnpm Typecheck
+      run: pnpm typecheck
+      run_from:
+        root_or_parent_with: [package.json]
+      environment:
+        - name: PATH
+          list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
-        - git_hooks: [pre-push]
-
-    - id: pnpm-typecheck-pre-commit
-      display_name: Pnpm Typecheck (Pre-commit)
-      run: "[ -f package.json ] && mise exec -- pnpm typecheck || true"
-      triggers:
-        - git_hooks: [pre-commit]
-
-    - id: pnpm-typecheck-pre-push
-      display_name: Pnpm Typecheck (Pre-push)
-      run: "[ -f package.json ] && mise exec -- pnpm typecheck || true"
-      triggers:
-        - git_hooks: [pre-push]
+        - git_hooks: [pre-commit, pre-push]
+          paths: ["**/*.ts", "**/*.tsx", "package.json"]
 
     - id: pnpm-audit-pre-push
       display_name: Pnpm Security Audit
-      run: "[ -f package.json ] && mise exec -- pnpm audit --audit-level=high || true"
+      run: pnpm audit --audit-level=high
+      run_from:
+        root_or_parent_with: [package.json]
+      environment:
+        - name: PATH
+          list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
         - git_hooks: [pre-push]
 
     - id: yard-validate-pre-commit
       display_name: YARD Documentation Validation
       description: Validates YARD documentation before commit
-      run: "[ -f Gemfile ] && mise run yard:validate || true"
+      run: mise run yard:validate
+      run_from:
+        root_or_parent_with: [Gemfile]
+      environment:
+        - name: PATH
+          list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
         - git_hooks: [pre-commit]
+          paths: ["**/*.rb", "Gemfile"]
 
     - id: inspec-pre-push
       display_name: InSpec Compliance Tests
       description: Runs Chef/Cinc InSpec compliance profiles before push
-      run: "[ -d cookbooks ] && inspec exec cookbooks/*/compliance/profiles/default --reporter cli || true"
+      run: inspec exec cookbooks/*/compliance/profiles/default --reporter cli
+      run_from:
+        root_or_parent_with: [cookbooks]
       triggers:
         - git_hooks: [pre-push]
+          paths: ["cookbooks/**/compliance/**"]
 
   enabled:
     - boops-export-pre-commit
     - cargo-audit-pre-push
     - cargo-deny-pre-push
     - cargo-test-pre-commit
+    - inspec-pre-push
     - pnpm-audit-pre-push
-    - pnpm-test-pre-commit
-    - pnpm-test-pre-push
-    - pnpm-typecheck-pre-commit
-    - pnpm-typecheck-pre-push
+    - pnpm-test
+    - pnpm-typecheck
     - trunk-announce
     - trunk-check-pre-commit
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
     - yard-validate-pre-commit
-    - inspec-pre-push
 
 lint:
   definitions:
@@ -124,21 +152,29 @@ lint:
         - .trunk/configs/dprint.json
       suggest_if: config_present
 
-    # rubocop with mise-managed Ruby (version defined in project's .mise.toml)
+    # rubocop with mise-managed Ruby
     - name: rubocop
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
+        - name: MISE_TRUSTED_CONFIG_PATHS
+          value: "/tmp/trunk-1000"
+      direct_configs:
+        - .trunk/configs/.rubocop.yml
+        - .rubocop.yml
 
     # cookstyle for Chef/InSpec files (uses system cookstyle from Cinc Workstation)
     - name: cookstyle
       description: Chef/InSpec style linter (RuboCop-based)
       files: [ruby]
       suggest_if: never
+      environment:
+        - name: PATH
+          list: ["/opt/cinc-workstation/bin", "${env.PATH}"]
       commands:
         - name: lint
           output: sarif
-          run: /opt/cinc-workstation/bin/cookstyle --format json ${target}
+          run: cookstyle --format json ${target}
           success_codes: [0, 1]
           batch: true
           parser:
@@ -146,7 +182,7 @@ lint:
             run: python3 ${plugin}/configs/cookstyle_to_sarif.py
         - name: fix
           output: rewrite
-          run: /opt/cinc-workstation/bin/cookstyle --auto-correct ${target}
+          run: cookstyle --auto-correct ${target}
           success_codes: [0, 1]
           in_place: true
           batch: true
@@ -156,7 +192,7 @@ lint:
       known_good_version: 7.32.8
       version_command:
         parse_regex: "Cookstyle ${semver}"
-        run: /opt/cinc-workstation/bin/cookstyle --version
+        run: cookstyle --version
 
     # serdi is not in trunk-io/plugins - full definition required
     - name: serdi
