@@ -5,18 +5,13 @@ actions:
   definitions:
     - id: boops-export-pre-commit
       display_name: Export Boops Store
-      run: cargo run --quiet -- export
-      run_from:
-        root_or_parent_with: [Cargo.toml]
+      run: "[ ! -f Cargo.toml ] || cargo run --quiet -- export"
       triggers:
         - git_hooks: [pre-commit]
-          paths: ["**/*.rs", "Cargo.toml", "Cargo.lock"]
 
     - id: cargo-audit-pre-push
       display_name: Cargo Security Audit
-      run: cargo audit
-      run_from:
-        root_or_parent_with: [Cargo.toml]
+      run: "[ ! -f Cargo.toml ] || cargo audit"
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
@@ -25,9 +20,7 @@ actions:
 
     - id: cargo-deny-pre-push
       display_name: Cargo Dependency Check
-      run: cargo deny check --config .trunk/configs/deny.toml
-      run_from:
-        root_or_parent_with: [Cargo.toml]
+      run: "[ ! -f Cargo.toml ] || cargo deny check --config .trunk/configs/deny.toml"
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
@@ -36,42 +29,31 @@ actions:
 
     - id: cargo-test-pre-commit
       display_name: Cargo Tests
-      run: cargo test
-      run_from:
-        root_or_parent_with: [Cargo.toml]
+      run: "[ ! -f Cargo.toml ] || cargo test"
       triggers:
         - git_hooks: [pre-commit]
-          paths: ["**/*.rs", "Cargo.toml", "Cargo.lock"]
 
     - id: pnpm-test
       display_name: Pnpm Tests
-      run: pnpm test
-      run_from:
-        root_or_parent_with: [package.json]
+      run: "[ ! -f package.json ] || pnpm test"
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
         - git_hooks: [pre-commit, pre-push]
-          paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "package.json"]
 
     - id: pnpm-typecheck
       display_name: Pnpm Typecheck
-      run: pnpm typecheck
-      run_from:
-        root_or_parent_with: [package.json]
+      run: "[ ! -f package.json ] || pnpm typecheck"
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
         - git_hooks: [pre-commit, pre-push]
-          paths: ["**/*.ts", "**/*.tsx", "package.json"]
 
     - id: pnpm-audit-pre-push
       display_name: Pnpm Security Audit
-      run: pnpm audit --audit-level=high
-      run_from:
-        root_or_parent_with: [package.json]
+      run: "[ ! -f package.json ] || pnpm audit --audit-level=high"
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
@@ -81,25 +63,19 @@ actions:
     - id: yard-validate-pre-commit
       display_name: YARD Documentation Validation
       description: Validates YARD documentation before commit
-      run: mise run yard:validate
-      run_from:
-        root_or_parent_with: [Gemfile]
+      run: "[ ! -f Gemfile ] || mise run yard:validate"
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       triggers:
         - git_hooks: [pre-commit]
-          paths: ["**/*.rb", "Gemfile"]
 
     - id: inspec-pre-push
       display_name: InSpec Compliance Tests
       description: Runs Chef/Cinc InSpec compliance profiles before push
-      run: inspec exec cookbooks/*/compliance/profiles/default --input-file inspec.yml --reporter cli
-      run_from:
-        root_or_parent_with: [cookbooks]
+      run: "[ ! -d cookbooks ] || inspec exec cookbooks/*/compliance/profiles/default --input-file inspec.yml --reporter cli"
       triggers:
         - git_hooks: [pre-push]
-          paths: ["cookbooks/**/compliance/**", "inspec.yml"]
 
   enabled:
     - boops-export-pre-commit
