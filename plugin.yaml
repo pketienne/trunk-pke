@@ -3,9 +3,13 @@ required_trunk_version: ">=1.22.8"
 
 actions:
   definitions:
+    ## These definitions need to move from the shard config into project specific trunk.yaml files.
+    ## It was a good idea to have them shared here, but trunk just doesn't have the features to support this model of usage.
+    ## Move these into a Symmetra cookbook for managing projects so that enforcement of appropriate tools can be managed without poor reliability of action triggers.
+
     - id: boops-export-pre-commit
       display_name: Export Boops Store
-      run: "[ ! -f Cargo.toml ] || cargo run --quiet -- export"
+      run: "[ ! -d .boops ] || cargo run --quiet -- export"
       triggers:
         - git_hooks: [pre-commit]
 
@@ -73,7 +77,7 @@ actions:
     - id: inspec-pre-push
       display_name: InSpec Compliance Tests
       description: Runs Chef/Cinc InSpec compliance profiles before push
-      run: "[ ! -d cookbooks ] || inspec exec cookbooks/*/compliance/profiles/default --input-file inspec.yml --reporter cli"
+      run: "[ ! -d cookbooks ] || inspec exec cookbooks/*/compliance/profiles/default --input-file .inspec/controls.yml --waiver-file .inspec/waivers.yml --reporter cli"
       triggers:
         - git_hooks: [pre-push]
 
@@ -95,8 +99,6 @@ actions:
 
 lint:
   definitions:
-    # Extend biome with additional file types (jsonc, svelte, vue)
-    # trunk-io/plugins only includes: astro, css, graphql, javascript, json, typescript
     - name: biome
       files:
         - javascript
@@ -109,7 +111,6 @@ lint:
         - svelte
         - vue
 
-    # dprint is not in trunk-io/plugins - full definition required
     - name: dprint
       tools: [dprint]
       files: [markdown]
@@ -124,25 +125,22 @@ lint:
         - .trunk/configs/dprint.json
         - dprint.json
       affects_cache:
-        - dprint.json
         - .trunk/configs/dprint.json
+        - dprint.json
       suggest_if: config_present
 
-    # rubocop with mise-managed Ruby
     - name: rubocop
       environment:
         - name: PATH
           list: ["${home}/.local/share/mise/shims", "${env.PATH}"]
       direct_configs:
-        - .trunk/configs/.rubocop.yml
         - .rubocop.yml
+        - .trunk/configs/.rubocop.yml
 
-    # cookstyle for Chef/InSpec files (uses system cookstyle from Cinc Workstation)
-    # Reuses trunk's rubocop_to_sarif.py since cookstyle outputs identical JSON
     - name: cookstyle
       description: Chef/InSpec style linter (RuboCop-based)
       files: [ruby]
-      suggest_if: never
+      suggest_if: config_present
       environment:
         - name: PATH
           list: ["/opt/cinc-workstation/bin", "${env.PATH}"]
@@ -162,14 +160,17 @@ lint:
           in_place: true
           batch: true
           formatter: true
-      direct_configs: [.rubocop.yml]
+      direct_configs:
+        - .kitchen.yml
+        - metadata.rb
+      affects_cache:
+        - .rubocop.yml
       issue_url_format: https://docs.chef.io/workstation/cookstyle/
       known_good_version: 7.32.8
       version_command:
         parse_regex: "Cookstyle ${semver}"
         run: cookstyle --version
 
-    # serdi is not in trunk-io/plugins - full definition required
     - name: serdi
       description: RDF syntax validator and canonical formatter
       files: [turtle]
@@ -196,6 +197,7 @@ lint:
     - black@26.1.0
     - checkov@3.2.499
     - clippy@1.93.0
+    - cookstyle
     - dprint@0.51.1
     - git-diff-check
     - isort@7.0.0
@@ -215,12 +217,12 @@ lint:
     - configs:
         - configs/.editorconfig
         - configs/.markdownlint.json
+        - configs/.rubocop.yml
         - configs/.taplo.toml
         - configs/biome.json
         - configs/deny.toml
         - configs/dprint.json
         - configs/rustfmt.toml
-        - configs/.rubocop.yml
 
   files:
     - name: turtle
@@ -260,12 +262,10 @@ lint:
         - node_modules/**
         - target/**
         - vendor/**
-    # Rubocop doesn't understand InSpec DSL - use cookstyle for compliance files
     - linters: [rubocop]
       paths:
         - cookbooks/*/compliance/**
         - scripts/**
-    # Cookstyle is specifically for Chef/InSpec - don't run on other Ruby files
     - linters: [cookstyle]
       paths:
         - scripts/**
