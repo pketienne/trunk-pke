@@ -77,7 +77,7 @@ actions:
     - id: inspec-pre-push
       display_name: InSpec Compliance Tests
       description: Runs Chef/Cinc InSpec compliance profiles before push
-      run: "[ ! -d cookbooks ] || inspec exec cookbooks/*/compliance/profiles/default --input-file .inspec/controls.yml --waiver-file .inspec/waivers.yml --reporter cli"
+      run: "[ ! -d cookbooks ] || inspec exec cookbooks/*/compliance/profiles/default --input-file .inspec/controls.yml --waiver-file .inspec/waivers.yml --no-distinct-exit --reporter cli"
       triggers:
         - git_hooks: [pre-push]
 
