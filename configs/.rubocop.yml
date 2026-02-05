@@ -30,9 +30,25 @@ Layout/LineLength:
 # Metrics
 Metrics/MethodLength:
   Max: 20
+  Exclude:
+    - "**/lib/symmetra/audit/**/*"
 
 Metrics/AbcSize:
   Max: 25
+  Exclude:
+    - "**/lib/symmetra/audit/**/*"
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - "**/lib/symmetra/audit/**/*"
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - "**/lib/symmetra/audit/**/*"
+
+Metrics/ClassLength:
+  Exclude:
+    - "**/lib/symmetra/audit/**/*"
 
 Metrics/BlockLength:
   Exclude:
@@ -43,6 +59,7 @@ Metrics/BlockLength:
     - "**/cookbooks/**/*"
     - "**/recipes/**/*"
     - "**/resources/**/*"
+    - "**/lib/symmetra/audit/**/*"
 
 # Style
 Style/Documentation:
