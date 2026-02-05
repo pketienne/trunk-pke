@@ -40,6 +40,9 @@ Metrics/BlockLength:
     - "**/test/**/*"
     - "*.gemspec"
     - "Rakefile"
+    - "**/cookbooks/**/*"
+    - "**/recipes/**/*"
+    - "**/resources/**/*"
 
 # Style
 Style/Documentation:
@@ -53,6 +56,25 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: single_quotes
+
+# Cookstyle compatibility - trailing commas in multiline structures
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+# Cookstyle compatibility - parentheses for %w literals
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%w': '()'
+    '%W': '()'
+    '%i': '()'
+    '%I': '()'
+
+# Cookstyle requires ::File for proper scoping in Chef resources
+Style/RedundantConstantBase:
+  Enabled: false
 
 # Naming
 Naming/FileName:
